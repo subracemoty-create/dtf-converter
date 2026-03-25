@@ -212,6 +212,11 @@ def bgremover():
     return render_template('bgremover.html')
 
 
+@app.route('/text')
+def textdesigner():
+    return render_template('textdesigner.html')
+
+
 @app.route('/convert', methods=['POST'])
 def convert():
     if 'image' not in request.files:

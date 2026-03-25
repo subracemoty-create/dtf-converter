@@ -118,6 +118,15 @@ h1 .moty {
 .card-bg::before { background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(240,147,251,0.05)); }
 .card-bg:hover { box-shadow: 0 20px 60px rgba(102,126,234,0.2); }
 
+.card-text::before { background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,107,53,0.05)); }
+.card-text:hover { box-shadow: 0 20px 60px rgba(255,215,0,0.2); }
+.card-text .card-title {
+  background: linear-gradient(135deg, #ffd700, #ff6b35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .card-icon {
   font-size: 64px;
   margin-bottom: 20px;
@@ -179,6 +188,12 @@ h1 .moty {
       <span class="card-icon">🖼️</span>
       <div class="card-title">Background Remover</div>
       <div class="card-desc">הסרת רקע חכמה עם AI — עובד לחלוטין בדפדפן</div>
+    </a>
+
+    <a href="/text" class="card card-text">
+      <span class="card-icon">✍️</span>
+      <div class="card-title">Text Designer</div>
+      <div class="card-desc">עיצוב טקסט בעברית — גרפיטי, ניאון, זהב ועוד — מוכן להדפסה</div>
     </a>
   </div>
 
