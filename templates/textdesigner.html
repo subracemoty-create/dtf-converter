@@ -6,7 +6,7 @@
 <title>MOTY Text Designer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@700;900&family=Secular+One&family=Karantina:wght@700&family=Rubik+Mono+One&family=Varela+Round&family=Suez+One&family=Frank+Ruhl+Libre:wght@700;900&family=Amatic+SC:wght@700&family=Bungee&family=Bungee+Shade&family=Permanent+Marker&family=Rubik+Glitch&family=Rubik+Wet+Paint&family=Rubik+Burned&family=Rubik+Dirt&family=Rubik+Distressed&family=Rubik+Spray+Paint&family=Rubik+Vinyl&family=Rubik+Puddles&family=Rubik+Storm&family=Rubik+Microbe&family=Rubik+Maze&family=Rubik+Iso&family=Rubik+Pixels&family=Rubik+Maps&family=Rubik+Broken+Fax&family=Rubik+Lines&family=Rubik+Doodle+Shadow&family=Rubik+Doodle+Triangles&family=Rubik+Gemstones&family=Rubik+Marker+Hatch&family=Rubik+Scribble&family=Bangers&family=Passion+One:wght@700;900&family=Black+Ops+One&family=Creepster&family=Nosifer&family=Metal+Mania&family=Pirata+One&family=Emblema+One&family=Fascinate&family=Hanalei+Fill&family=Monoton&family=Vast+Shadow&family=Ewert&family=Plaster&family=Faster+One&family=Bungee+Spice&family=Bungee+Outline&family=Silkscreen&family=Press+Start+2P&family=Pixelify+Sans:wght@700&family=Honk&family=Nabla&family=Foldit:wght@700&family=Tourney:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@700;900&family=Secular+One&family=Karantina:wght@700&family=Rubik+Mono+One&family=Varela+Round&family=Suez+One&family=Frank+Ruhl+Libre:wght@700;900&family=Amatic+SC:wght@700&family=Bungee&family=Bungee+Shade&family=Permanent+Marker&family=Rubik+Glitch&family=Rubik+Wet+Paint&family=Rubik+Burned&family=Rubik+Dirt&family=Rubik+Distressed&family=Rubik+Spray+Paint&family=Rubik+Vinyl&family=Rubik+Puddles&family=Rubik+Storm&family=Rubik+Microbe&family=Rubik+Maze&family=Rubik+Iso&family=Rubik+Pixels&family=Rubik+Maps&family=Rubik+Broken+Fax&family=Rubik+Lines&family=Rubik+Doodle+Shadow&family=Rubik+Doodle+Triangles&family=Rubik+Gemstones&family=Rubik+Marker+Hatch&family=Rubik+Scribble&family=Bangers&family=Passion+One:wght@700;900&family=Black+Ops+One&family=Creepster&family=Nosifer&family=Metal+Mania&family=Pirata+One&family=Emblema+One&family=Fascinate&family=Hanalei+Fill&family=Monoton&family=Vast+Shadow&family=Ewert&family=Plaster&family=Faster+One&family=Bungee+Spice&family=Bungee+Outline&family=Silkscreen&family=Press+Start+2P&family=Pixelify+Sans:wght@700&family=Honk&family=Nabla&family=Foldit:wght@700&family=Tourney:wght@700;900&family=Alef:wght@700&family=Miriam+Libre:wght@700&family=Bellefair&family=David+Libre:wght@700&family=Assistant:wght@700&family=Dancing+Script:wght@700&family=Great+Vibes&family=Pacifico&family=Lobster&family=Satisfy&family=Sacramento&family=Caveat:wght@700&family=Kalam:wght@700&family=Patrick+Hand&family=Indie+Flower&family=Shadows+Into+Light&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -615,6 +615,11 @@ const FONTS = [
   { name: 'Suez One', label: 'קלאסי', css: "'Suez One'", weight: '400', he: true },
   { name: 'Frank Ruhl Libre', label: 'אלגנט', css: "'Frank Ruhl Libre'", weight: '900', he: true },
   { name: 'Amatic SC', label: 'יד חופשית', css: "'Amatic SC'", weight: '700', he: true },
+  { name: 'Alef', label: 'כתב יד', css: "'Alef'", weight: '700', he: true },
+  { name: 'Miriam Libre', label: 'מרים', css: "'Miriam Libre'", weight: '700', he: true },
+  { name: 'Bellefair', label: 'עדין', css: "'Bellefair'", weight: '400', he: true },
+  { name: 'David Libre', label: 'דוד', css: "'David Libre'", weight: '700', he: true },
+  { name: 'Assistant', label: 'מסודר', css: "'Assistant'", weight: '700', he: true },
   // === עברית אפקטים ===
   { name: 'Rubik Spray Paint', label: 'ספריי', css: "'Rubik Spray Paint'", weight: '400', he: true },
   { name: 'Rubik Wet Paint', label: 'צבע רטוב', css: "'Rubik Wet Paint'", weight: '400', he: true },
@@ -658,6 +663,18 @@ const FONTS = [
   { name: 'Honk', label: 'Honk', css: "'Honk'", weight: '400', he: false },
   { name: 'Tourney', label: 'Sport', css: "'Tourney'", weight: '900', he: false },
   { name: 'Foldit', label: 'Origami', css: "'Foldit'", weight: '700', he: false },
+  // === אנגלית כתב יד ===
+  { name: 'Dancing Script', label: 'Dance', css: "'Dancing Script'", weight: '700', he: false },
+  { name: 'Great Vibes', label: 'Elegant', css: "'Great Vibes'", weight: '400', he: false },
+  { name: 'Pacifico', label: 'Pacifico', css: "'Pacifico'", weight: '400', he: false },
+  { name: 'Lobster', label: 'Lobster', css: "'Lobster'", weight: '400', he: false },
+  { name: 'Satisfy', label: 'Satisfy', css: "'Satisfy'", weight: '400', he: false },
+  { name: 'Sacramento', label: 'Script', css: "'Sacramento'", weight: '400', he: false },
+  { name: 'Caveat', label: 'Handwrite', css: "'Caveat'", weight: '700', he: false },
+  { name: 'Kalam', label: 'Pen', css: "'Kalam'", weight: '700', he: false },
+  { name: 'Patrick Hand', label: 'Hand', css: "'Patrick Hand'", weight: '400', he: false },
+  { name: 'Indie Flower', label: 'Flower', css: "'Indie Flower'", weight: '400', he: false },
+  { name: 'Shadows Into Light', label: 'Shadow', css: "'Shadows Into Light'", weight: '400', he: false },
 ];
 
 const STYLES = [
