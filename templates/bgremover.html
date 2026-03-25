@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moty Background Remover - הסרת רקע</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --grad1: #667eea;
+  --grad2: #764ba2;
+  --grad3: #f093fb;
+  --grad4: #f5576c;
+  --accent: #00d2ff;
+  --green: #00e676;
+  --orange: #ff9100;
+  --bg: #0f0f1a;
+  --card: #1a1a2e;
+  --card2: #16213e;
+}
+
+body {
+  font-family: 'Heebo', sans-serif;
+  background: var(--bg);
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated background */
+.bg-animation {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-animation .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: float 20s ease-in-out infinite;
+}
+.orb:nth-child(1) { width: 600px; height: 600px; background: var(--grad1); top: -10%; right: -10%; animation-delay: 0s; }
+.orb:nth-child(2) { width: 500px; height: 500px; background: var(--grad3); bottom: -10%; left: -5%; animation-delay: -7s; }
+.orb:nth-child(3) { width: 400px; height: 400px; background: var(--accent); top: 40%; left: 30%; animation-delay: -14s; }
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(50px, -30px) scale(1.1); }
+  50% { transform: translate(-30px, 50px) scale(0.95); }
+  75% { transform: translate(40px, 20px) scale(1.05); }
+}
+
+/* Main container */
+#app {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 40px 0 30px;
+}
+.header h1 {
+  font-size: 48px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--grad1), var(--grad3), var(--grad4));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.header p {
+  font-size: 18px;
+  color: #888;
+  font-weight: 300;
+}
+
+/* Drop Zone */
+.drop-zone {
+  border: 3px dashed rgba(102, 126, 234, 0.4);
+  border-radius: 24px;
+  padding: 60px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  background: rgba(26, 26, 46, 0.6);
+  backdrop-filter: blur(10px);
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+.drop-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(240,147,251,0.05));
+  border-radius: 24px;
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--grad3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+}
+.drop-zone:hover::before, .drop-zone.drag-over::before { opacity: 1; }
+
+.drop-icon {
+  font-size: 72px;
+  margin-bottom: 16px;
+  display: block;
+  filter: grayscale(0.3);
+  transition: all 0.3s;
+}
+.drop-zone:hover .drop-icon { filter: grayscale(0); transform: scale(1.1); }
+
+.drop-text {
+  font-size: 22px;
+  font-weight: 500;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+.drop-subtext {
+  font-size: 14px;
+  color: #666;
+}
+.drop-zone input[type="file"] { display: none; }
+
+.btn-browse {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 36px;
+  background: linear-gradient(135deg, var(--grad1), var(--grad2));
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Heebo', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+}
+.btn-browse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+}
+
+/* Options Bar */
+.options-bar {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+.option-chip {
+  padding: 10px 24px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+  background: rgba(26, 26, 46, 0.8);
+  color: #aaa;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Heebo', sans-serif;
+  backdrop-filter: blur(5px);
+}
+.option-chip:hover { border-color: var(--grad1); color: #fff; }
+.option-chip.active {
+  background: linear-gradient(135deg, var(--grad1), var(--grad2));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 2px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Progress */
+.progress-container {
+  display: none;
+  margin: 30px 0;
+  text-align: center;
+}
+.progress-container.show { display: block; }
+
+.progress-ring {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+.progress-ring svg { transform: rotate(-90deg); }
+.progress-ring circle {
+  fill: none;
+  stroke-width: 6;
+}
+.progress-ring .bg { stroke: rgba(255,255,255,0.05); }
+.progress-ring .fg {
+  stroke: url(#progressGrad);
+  stroke-linecap: round;
+  stroke-dasharray: 339.292;
+  stroke-dashoffset: 339.292;
+  transition: stroke-dashoffset 0.5s ease;
+}
+.progress-percent {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--grad3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.progress-text {
+  font-size: 16px;
+  color: #888;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Results */
+.results {
+  display: none;
+  margin-top: 20px;
+}
+.results.show { display: block; }
+
+.compare-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media (max-width: 700px) { .compare-container { grid-template-columns: 1fr; } }
+
+.image-card {
+  background: var(--card);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.3s;
+}
+.image-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+.image-card .card-header {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.card-header .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.card-header .label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #888;
+}
+.image-card .card-body {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  position: relative;
+}
+/* Checkerboard pattern for transparency */
+.card-body.transparent-bg {
+  background-image:
+    linear-gradient(45deg, #222 25%, transparent 25%),
+    linear-gradient(-45deg, #222 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #222 75%),
+    linear-gradient(-45deg, transparent 75%, #222 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+.image-card img {
+  max-width: 100%;
+  max-height: 450px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+/* Background color options */
+.bg-options {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.bg-swatch {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+.bg-swatch:hover { transform: scale(1.15); }
+.bg-swatch.active { border-color: var(--accent); box-shadow: 0 0 12px rgba(0,210,255,0.4); }
+.bg-swatch.checker {
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+  background-color: #fff;
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.btn {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Heebo', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-download {
+  background: linear-gradient(135deg, var(--green), #00c853);
+  color: #000;
+  box-shadow: 0 4px 20px rgba(0, 230, 118, 0.3);
+}
+.btn-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(0, 230, 118, 0.5);
+}
+.btn-white-bg {
+  background: linear-gradient(135deg, #fff, #eee);
+  color: #333;
+  box-shadow: 0 4px 20px rgba(255,255,255,0.15);
+}
+.btn-white-bg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(255,255,255,0.25);
+}
+.btn-new {
+  background: linear-gradient(135deg, var(--grad4), var(--orange));
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(245, 87, 108, 0.3);
+}
+.btn-new:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(245, 87, 108, 0.5);
+}
+
+/* Batch Mode */
+.batch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.batch-item {
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+}
+.batch-item img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  padding: 8px;
+}
+.batch-item .batch-status {
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+}
+.batch-status.processing { color: var(--orange); }
+.batch-status.done { color: var(--green); }
+.batch-status.waiting { color: #555; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 999;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(10px);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: rgba(0, 230, 118, 0.2); border: 1px solid var(--green); color: var(--green); }
+.toast.error { background: rgba(245, 87, 108, 0.2); border: 1px solid var(--grad4); color: var(--grad4); }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 0;
+  color: #444;
+  font-size: 12px;
+}
+
+/* Moty Brand Header */
+.header h1 .moty-name {
+  display: inline-block;
+  font-size: 56px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #f093fb, #ff6b6b);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow 4s ease infinite;
+  letter-spacing: 3px;
+  text-shadow: none;
+  position: relative;
+}
+.header h1 .moty-name::after {
+  content: '✦';
+  position: absolute;
+  top: -8px;
+  right: -20px;
+  font-size: 18px;
+  -webkit-text-fill-color: #ffd93d;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.5; transform: scale(1.3) rotate(180deg); }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-animation">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+</div>
+
+<div id="app">
+  <!-- Header -->
+  <div class="header">
+    <h1><span class="moty-name">MOTY</span> Background Remover</h1>
+    <p>הסרת רקע אוטומטית בלחיצה אחת &bull; by Moty ✨</p>
+  </div>
+
+  <!-- Options -->
+  <div class="options-bar">
+    <button class="option-chip active" data-mode="auto" onclick="setMode('auto')">🤖 אוטומטי</button>
+    <button class="option-chip" data-mode="person" onclick="setMode('person')">👤 אנשים</button>
+    <button class="option-chip" data-mode="product" onclick="setMode('product')">📦 מוצרים</button>
+    <button class="option-chip" data-mode="batch" onclick="setMode('batch')">📂 מרובה</button>
+  </div>
+
+  <!-- Drop Zone -->
+  <div class="drop-zone" id="dropZone">
+    <span class="drop-icon">🖼️</span>
+    <div class="drop-text">גרור תמונה לכאן</div>
+    <div class="drop-subtext">או לחץ לבחירת קובץ &bull; PNG, JPG, WEBP</div>
+    <button class="btn-browse" onclick="document.getElementById('fileInput').click()">בחר תמונה</button>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-ring">
+      <svg width="120" height="120">
+        <defs>
+          <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:var(--accent)"/>
+            <stop offset="100%" style="stop-color:var(--grad3)"/>
+          </linearGradient>
+        </defs>
+        <circle class="bg" cx="60" cy="60" r="54"/>
+        <circle class="fg" id="progressCircle" cx="60" cy="60" r="54"/>
+      </svg>
+      <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+    <div class="progress-text" id="progressText">טוען מודל AI...</div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <!-- BG Color Options -->
+    <div style="text-align:center;margin-bottom:12px;">
+      <span style="color:#666;font-size:13px;">צבע רקע תצוגה:</span>
+    </div>
+    <div class="bg-options">
+      <div class="bg-swatch checker active" onclick="setPreviewBg('checker')" title="שקוף"></div>
+      <div class="bg-swatch" style="background:#fff" onclick="setPreviewBg('#fff')" title="לבן"></div>
+      <div class="bg-swatch" style="background:#000" onclick="setPreviewBg('#000')" title="שחור"></div>
+      <div class="bg-swatch" style="background:#ff4444" onclick="setPreviewBg('#ff4444')" title="אדום"></div>
+      <div class="bg-swatch" style="background:#4CAF50" onclick="setPreviewBg('#4CAF50')" title="ירוק"></div>
+      <div class="bg-swatch" style="background:#2196F3" onclick="setPreviewBg('#2196F3')" title="כחול"></div>
+      <div class="bg-swatch" style="background:#FF9800" onclick="setPreviewBg('#FF9800')" title="כתום"></div>
+      <div class="bg-swatch" style="background:#9C27B0" onclick="setPreviewBg('#9C27B0')" title="סגול"></div>
+      <div class="bg-swatch" style="background:linear-gradient(135deg,#667eea,#764ba2)" onclick="setPreviewBg('linear-gradient(135deg,#667eea,#764ba2)')" title="גרדיאנט"></div>
+    </div>
+
+    <div class="compare-container" dir="ltr">
+      <!-- Original -->
+      <div class="image-card">
+        <div class="card-header">
+          <div class="dot" style="background:var(--orange)"></div>
+          <span class="label">תמונה מקורית</span>
+        </div>
+        <div class="card-body">
+          <img id="originalImg">
+        </div>
+      </div>
+      <!-- Result -->
+      <div class="image-card">
+        <div class="card-header">
+          <div class="dot" style="background:var(--green)"></div>
+          <span class="label">ללא רקע ✨</span>
+        </div>
+        <div class="card-body transparent-bg" id="resultBody">
+          <img id="resultImg">
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-download" onclick="downloadResult('transparent')">
+        <span>⬇️</span> הורד PNG שקוף
+      </button>
+      <button class="btn btn-white-bg" onclick="downloadResult('white')">
+        <span>⬇️</span> הורד עם רקע לבן
+      </button>
+      <button class="btn btn-new" onclick="resetApp()">
+        <span>🔄</span> תמונה חדשה
+      </button>
+    </div>
+  </div>
+
+  <!-- Batch Results -->
+  <div class="results" id="batchResults">
+    <div class="batch-grid" id="batchGrid"></div>
+    <div class="actions">
+      <button class="btn btn-download" onclick="downloadAllBatch()">
+        <span>⬇️</span> הורד הכל
+      </button>
+      <button class="btn btn-new" onclick="resetApp()">
+        <span>🔄</span> התחל מחדש
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">
+    Moty Background Remover &bull; AI-Powered &bull; עובד לחלוטין בדפדפן &bull; אין העלאה לשרת
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Background Removal Library - loaded as dynamic import to work on file:// and http:// -->
+<script>
+(async function() {
+  let imglyRemoveBackground = null;
+  let libLoaded = false;
+  let libError = null;
+
+  // Load the library dynamically
+  async function loadLib() {
+    if (imglyRemoveBackground) return imglyRemoveBackground;
+    try {
+      const module = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm');
+      imglyRemoveBackground = module.default || module.removeBackground || module;
+      libLoaded = true;
+      return imglyRemoveBackground;
+    } catch(e1) {
+      console.warn('ESM import failed, trying alternative...', e1);
+      // Fallback: load via script tag injection with importmap shim
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.type = 'module';
+        s.textContent = `
+          import fn from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm';
+          window.__imglyBgRemoval = fn;
+          window.dispatchEvent(new Event('imgly-loaded'));
+        `;
+        window.addEventListener('imgly-loaded', () => {
+          imglyRemoveBackground = window.__imglyBgRemoval;
+          libLoaded = true;
+          resolve(imglyRemoveBackground);
+        }, { once: true });
+        s.onerror = (e) => reject(e);
+        document.head.appendChild(s);
+        // Timeout fallback
+        setTimeout(() => {
+          if (!libLoaded) reject(new Error('Library load timeout'));
+        }, 30000);
+      });
+    }
+  }
+
+  window.processImage = async function(file) {
+    showProgress();
+    updateProgress(5, 'טוען מודל AI... (פעם ראשונה לוקח יותר זמן)');
+
+    try {
+      const removeBg = await loadLib();
+
+      const config = {
+        progress: (key, current, total) => {
+          if (key === 'fetch:model') {
+            const pct = Math.round((current / total) * 60) + 10;
+            updateProgress(pct, 'טוען מודל AI...');
+          }
+          if (key === 'compute:inference') {
+            updateProgress(80, 'מסיר רקע...');
+          }
+        },
+        output: { format: 'image/png', quality: 1 }
+      };
+
+      updateProgress(10, 'מתחיל עיבוד...');
+      const blob = await removeBg(file, config);
+
+      window.resultBlob = blob;
+      updateProgress(100, 'הושלם! ✨');
+
+      const originalUrl = URL.createObjectURL(file);
+      const resultUrl = URL.createObjectURL(blob);
+
+      document.getElementById('originalImg').src = originalUrl;
+      document.getElementById('resultImg').src = resultUrl;
+
+      setTimeout(() => {
+        hideProgress();
+        document.getElementById('results').classList.add('show');
+        showToast('הרקע הוסר בהצלחה! 🎉', 'success');
+      }, 500);
+
+    } catch (err) {
+      console.error(err);
+      hideProgress();
+      showToast('שגיאה: ' + err.message, 'error');
+    }
+  };
+
+  window.processBatch = async function(files) {
+    showProgress();
+    const batchResults = [];
+    const grid = document.getElementById('batchGrid');
+    grid.innerHTML = '';
+
+    try {
+      const removeBg = await loadLib();
+
+      for (let i = 0; i < files.length; i++) {
+        const item = document.createElement('div');
+        item.className = 'batch-item';
+        item.id = 'batch-' + i;
+        const origUrl = URL.createObjectURL(files[i]);
+        item.innerHTML = '<img src="' + origUrl + '"><div class="batch-status waiting">ממתין...</div>';
+        grid.appendChild(item);
+      }
+
+      document.getElementById('batchResults').classList.add('show');
+
+      for (let i = 0; i < files.length; i++) {
+        const pct = Math.round((i / files.length) * 100);
+        updateProgress(pct, 'מעבד תמונה ' + (i + 1) + ' מתוך ' + files.length + '...');
+
+        const statusEl = document.querySelector('#batch-' + i + ' .batch-status');
+        statusEl.className = 'batch-status processing';
+        statusEl.textContent = 'מעבד...';
+
+        try {
+          const blob = await removeBg(files[i], {
+            output: { format: 'image/png', quality: 1 }
+          });
+
+          const url = URL.createObjectURL(blob);
+          document.querySelector('#batch-' + i + ' img').src = url;
+          statusEl.className = 'batch-status done';
+          statusEl.textContent = 'הושלם ✨';
+
+          batchResults.push({ blob, name: files[i].name });
+        } catch (err) {
+          statusEl.className = 'batch-status';
+          statusEl.style.color = 'var(--grad4)';
+          statusEl.textContent = 'שגיאה ❌';
+        }
+      }
+
+      window.batchResults = batchResults;
+      updateProgress(100, 'הכל הושלם!');
+      setTimeout(hideProgress, 500);
+      showToast(batchResults.length + ' תמונות עובדו בהצלחה!', 'success');
+    } catch(err) {
+      console.error(err);
+      hideProgress();
+      showToast('שגיאה: ' + err.message, 'error');
+    }
+  };
+})();
+</script>
+
+<script>
+// ==================== UI LOGIC ====================
+let currentMode = 'auto';
+let originalFileName = '';
+
+// Mode selection
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.option-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.mode === mode);
+  });
+
+  const fileInput = document.getElementById('fileInput');
+  if (mode === 'batch') {
+    fileInput.multiple = true;
+  } else {
+    fileInput.multiple = false;
+  }
+}
+
+// Drop zone
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('click', (e) => {
+  if (e.target.tagName !== 'INPUT') fileInput.click();
+});
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) handleFiles(fileInput.files);
+});
+
+function handleFiles(files) {
+  if (!files.length) return;
+
+  if (currentMode === 'batch' || files.length > 1) {
+    window.processBatch(Array.from(files));
+  } else {
+    originalFileName = files[0].name.replace(/\.[^.]+$/, '');
+    window.processImage(files[0]);
+  }
+  dropZone.style.display = 'none';
+  document.querySelector('.options-bar').style.display = 'none';
+}
+
+// Progress
+function showProgress() {
+  document.getElementById('progressContainer').classList.add('show');
+}
+function hideProgress() {
+  document.getElementById('progressContainer').classList.remove('show');
+}
+function updateProgress(pct, text) {
+  const circle = document.getElementById('progressCircle');
+  const circumference = 2 * Math.PI * 54;
+  const offset = circumference - (pct / 100) * circumference;
+  circle.style.strokeDashoffset = offset;
+  document.getElementById('progressPercent').textContent = pct + '%';
+  if (text) document.getElementById('progressText').textContent = text;
+}
+
+// Preview background
+function setPreviewBg(bg) {
+  const body = document.getElementById('resultBody');
+  document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (bg === 'checker') {
+    body.className = 'card-body transparent-bg';
+    body.style.background = '';
+  } else {
+    body.className = 'card-body';
+    body.style.background = bg;
+  }
+}
+
+// Download
+function downloadResult(type) {
+  const blob = window.resultBlob;
+  if (!blob) return;
+
+  if (type === 'transparent') {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = originalFileName + '_nobg.png';
+    a.click();
+    showToast('הקובץ הורד! 📁', 'success');
+  } else if (type === 'white') {
+    // Add white background
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob((b) => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(b);
+        a.download = originalFileName + '_white_bg.png';
+        a.click();
+        showToast('הקובץ הורד! 📁', 'success');
+      }, 'image/png');
+    };
+    img.src = URL.createObjectURL(blob);
+  }
+}
+
+function downloadAllBatch() {
+  const results = window.batchResults;
+  if (!results || !results.length) return;
+  results.forEach((r, i) => {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(r.blob);
+      a.download = r.name.replace(/\.[^.]+$/, '') + '_nobg.png';
+      a.click();
+    }, i * 300);
+  });
+  showToast(`${results.length} קבצים הורדו! 📁`, 'success');
+}
+
+// Reset
+function resetApp() {
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('batchResults').classList.remove('show');
+  dropZone.style.display = '';
+  document.querySelector('.options-bar').style.display = '';
+  fileInput.value = '';
+  window.resultBlob = null;
+}
+
+// Toast
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + type;
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Paste from clipboard
+document.addEventListener('paste', (e) => {
+  const items = e.clipboardData.items;
+  for (let item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      originalFileName = 'pasted_image';
+      window.processImage(file);
+      dropZone.style.display = 'none';
+      document.querySelector('.options-bar').style.display = 'none';
+      break;
+    }
+  }
+});
+</script>
+</body>
+</html>
