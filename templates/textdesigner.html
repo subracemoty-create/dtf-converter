@@ -6,7 +6,7 @@
 <title>MOTY Text Designer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@700;900&family=Secular+One&family=Karantina:wght@700&family=Rubik+Mono+One&family=Varela+Round&family=Suez+One&family=Frank+Ruhl+Libre:wght@700;900&family=Amatic+SC:wght@700&family=Bungee&family=Bungee+Shade&family=Permanent+Marker&family=Rubik+Glitch&family=Rubik+Wet+Paint&family=Rubik+Burned&family=Rubik+Dirt&family=Rubik+Distressed&family=Rubik+Spray+Paint&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@700;900&family=Secular+One&family=Karantina:wght@700&family=Rubik+Mono+One&family=Varela+Round&family=Suez+One&family=Frank+Ruhl+Libre:wght@700;900&family=Amatic+SC:wght@700&family=Bungee&family=Bungee+Shade&family=Permanent+Marker&family=Rubik+Glitch&family=Rubik+Wet+Paint&family=Rubik+Burned&family=Rubik+Dirt&family=Rubik+Distressed&family=Rubik+Spray+Paint&family=Rubik+Vinyl&family=Rubik+Puddles&family=Rubik+Storm&family=Rubik+Microbe&family=Rubik+Maze&family=Rubik+Iso&family=Rubik+Pixels&family=Rubik+Maps&family=Rubik+Broken+Fax&family=Rubik+Lines&family=Rubik+Doodle+Shadow&family=Rubik+Doodle+Triangles&family=Rubik+Gemstones&family=Rubik+Marker+Hatch&family=Rubik+Scribble&family=Bangers&family=Passion+One:wght@700;900&family=Black+Ops+One&family=Creepster&family=Nosifer&family=Metal+Mania&family=Pirata+One&family=Emblema+One&family=Fascinate&family=Hanalei+Fill&family=Monoton&family=Vast+Shadow&family=Ewert&family=Plaster&family=Faster+One&family=Bungee+Spice&family=Bungee+Outline&family=Silkscreen&family=Press+Start+2P&family=Pixelify+Sans:wght@700&family=Honk&family=Nabla&family=Foldit:wght@700&family=Tourney:wght@700;900&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -87,7 +87,7 @@ body {
 
 .main-layout {
   display: grid;
-  grid-template-columns: 220px 1fr 220px;
+  grid-template-columns: 240px 1fr 280px;
   gap: 10px;
   align-items: start;
 }
@@ -145,24 +145,35 @@ body {
 .text-input::placeholder { color: #444; }
 
 /* Font Grid */
+.font-section-label {
+  font-size: 10px;
+  color: #555;
+  margin: 6px 0 3px;
+  text-align: center;
+}
 .font-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
 }
+.font-grid::-webkit-scrollbar { width: 3px; }
+.font-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
 .font-btn {
   background: rgba(255,255,255,0.05);
   border: 2px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
-  padding: 6px 4px;
+  border-radius: 6px;
+  padding: 4px 2px;
   color: #ccc;
   cursor: pointer;
   transition: all 0.3s;
-  font-size: 13px;
+  font-size: 11px;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
 }
+.font-btn.en-only { border-color: rgba(100,150,255,0.15); }
 .font-btn:hover {
   background: rgba(255,255,255,0.1);
   border-color: rgba(255,255,255,0.2);
@@ -226,22 +237,7 @@ body {
   background: transparent;
 }
 
-/* Slider */
-.slider-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.slider-row input[type="range"] {
-  flex: 1;
-  accent-color: #ff6b35;
-}
-.slider-val {
-  font-size: 13px;
-  color: #888;
-  min-width: 35px;
-  text-align: center;
-}
+/* Slider - defined below after .sl */
 
 /* Preset colors */
 .color-presets {
@@ -402,10 +398,27 @@ canvas {
   margin-top: 4px;
 }
 .sl {
-  font-size: 10px;
-  color: #666;
-  min-width: 40px;
+  font-size: 11px;
+  color: #888;
+  min-width: 55px;
   white-space: nowrap;
+}
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.slider-row input[type="range"] {
+  flex: 1;
+  accent-color: #ff6b35;
+  min-width: 80px;
+}
+.slider-val {
+  font-size: 12px;
+  color: #aaa;
+  min-width: 38px;
+  text-align: left;
 }
 </style>
 </head>
@@ -592,20 +605,59 @@ canvas {
 <script>
 // ============ CONFIG ============
 const FONTS = [
-  { name: 'Heebo', label: 'חופשי', css: "'Heebo'", weight: '900' },
-  { name: 'Rubik', label: 'עבה', css: "'Rubik'", weight: '900' },
-  { name: 'Secular One', label: 'בולט', css: "'Secular One'", weight: '400' },
-  { name: 'Karantina', label: 'גרפיטי', css: "'Karantina'", weight: '700' },
-  { name: 'Rubik Mono One', label: 'מונו', css: "'Rubik Mono One'", weight: '400' },
-  { name: 'Varela Round', label: 'עגול', css: "'Varela Round'", weight: '400' },
-  { name: 'Suez One', label: 'קלאסי', css: "'Suez One'", weight: '400' },
-  { name: 'Frank Ruhl Libre', label: 'אלגנט', css: "'Frank Ruhl Libre'", weight: '900' },
-  { name: 'Amatic SC', label: 'יד חופשית', css: "'Amatic SC'", weight: '700' },
-  { name: 'Rubik Spray Paint', label: 'ספריי', css: "'Rubik Spray Paint'", weight: '400' },
-  { name: 'Rubik Wet Paint', label: 'צבע רטוב', css: "'Rubik Wet Paint'", weight: '400' },
-  { name: 'Rubik Burned', label: 'שרוף', css: "'Rubik Burned'", weight: '400' },
-  { name: 'Rubik Dirt', label: 'מלוכלך', css: "'Rubik Dirt'", weight: '400' },
-  { name: 'Rubik Glitch', label: 'גליץ\'', css: "'Rubik Glitch'", weight: '400' },
+  // === עברית + אנגלית ===
+  { name: 'Heebo', label: 'עב חופשי', css: "'Heebo'", weight: '900', he: true },
+  { name: 'Rubik', label: 'עבה', css: "'Rubik'", weight: '900', he: true },
+  { name: 'Secular One', label: 'בולט', css: "'Secular One'", weight: '400', he: true },
+  { name: 'Karantina', label: 'גרפיטי', css: "'Karantina'", weight: '700', he: true },
+  { name: 'Rubik Mono One', label: 'מונו', css: "'Rubik Mono One'", weight: '400', he: true },
+  { name: 'Varela Round', label: 'עגול', css: "'Varela Round'", weight: '400', he: true },
+  { name: 'Suez One', label: 'קלאסי', css: "'Suez One'", weight: '400', he: true },
+  { name: 'Frank Ruhl Libre', label: 'אלגנט', css: "'Frank Ruhl Libre'", weight: '900', he: true },
+  { name: 'Amatic SC', label: 'יד חופשית', css: "'Amatic SC'", weight: '700', he: true },
+  // === עברית אפקטים ===
+  { name: 'Rubik Spray Paint', label: 'ספריי', css: "'Rubik Spray Paint'", weight: '400', he: true },
+  { name: 'Rubik Wet Paint', label: 'צבע רטוב', css: "'Rubik Wet Paint'", weight: '400', he: true },
+  { name: 'Rubik Burned', label: 'שרוף', css: "'Rubik Burned'", weight: '400', he: true },
+  { name: 'Rubik Dirt', label: 'מלוכלך', css: "'Rubik Dirt'", weight: '400', he: true },
+  { name: 'Rubik Glitch', label: 'גליץ\'', css: "'Rubik Glitch'", weight: '400', he: true },
+  { name: 'Rubik Vinyl', label: 'ויניל', css: "'Rubik Vinyl'", weight: '400', he: true },
+  { name: 'Rubik Puddles', label: 'בועות', css: "'Rubik Puddles'", weight: '400', he: true },
+  { name: 'Rubik Storm', label: 'סערה', css: "'Rubik Storm'", weight: '400', he: true },
+  { name: 'Rubik Microbe', label: 'חיידק', css: "'Rubik Microbe'", weight: '400', he: true },
+  { name: 'Rubik Maze', label: 'מבוך', css: "'Rubik Maze'", weight: '400', he: true },
+  { name: 'Rubik Iso', label: 'תלת-מימד', css: "'Rubik Iso'", weight: '400', he: true },
+  { name: 'Rubik Pixels', label: 'פיקסלים', css: "'Rubik Pixels'", weight: '400', he: true },
+  { name: 'Rubik Maps', label: 'מפה', css: "'Rubik Maps'", weight: '400', he: true },
+  { name: 'Rubik Broken Fax', label: 'פקס שבור', css: "'Rubik Broken Fax'", weight: '400', he: true },
+  { name: 'Rubik Lines', label: 'קווים', css: "'Rubik Lines'", weight: '400', he: true },
+  { name: 'Rubik Doodle Shadow', label: 'שרבוט+צל', css: "'Rubik Doodle Shadow'", weight: '400', he: true },
+  { name: 'Rubik Doodle Triangles', label: 'משולשים', css: "'Rubik Doodle Triangles'", weight: '400', he: true },
+  { name: 'Rubik Gemstones', label: 'אבני חן', css: "'Rubik Gemstones'", weight: '400', he: true },
+  { name: 'Rubik Marker Hatch', label: 'מרקר', css: "'Rubik Marker Hatch'", weight: '400', he: true },
+  { name: 'Rubik Scribble', label: 'שרבוט', css: "'Rubik Scribble'", weight: '400', he: true },
+  // === אנגלית בלבד — דיספליי ===
+  { name: 'Bungee', label: 'Bungee', css: "'Bungee'", weight: '400', he: false },
+  { name: 'Bungee Shade', label: 'Bungee 3D', css: "'Bungee Shade'", weight: '400', he: false },
+  { name: 'Bungee Spice', label: 'Bungee Fire', css: "'Bungee Spice'", weight: '400', he: false },
+  { name: 'Bungee Outline', label: 'Bungee Out', css: "'Bungee Outline'", weight: '400', he: false },
+  { name: 'Permanent Marker', label: 'Marker', css: "'Permanent Marker'", weight: '400', he: false },
+  { name: 'Bangers', label: 'Bangers', css: "'Bangers'", weight: '400', he: false },
+  { name: 'Passion One', label: 'Passion', css: "'Passion One'", weight: '900', he: false },
+  { name: 'Black Ops One', label: 'Army', css: "'Black Ops One'", weight: '400', he: false },
+  { name: 'Creepster', label: 'Horror', css: "'Creepster'", weight: '400', he: false },
+  { name: 'Nosifer', label: 'Blood', css: "'Nosifer'", weight: '400', he: false },
+  { name: 'Metal Mania', label: 'Metal', css: "'Metal Mania'", weight: '400', he: false },
+  { name: 'Pirata One', label: 'Pirate', css: "'Pirata One'", weight: '400', he: false },
+  { name: 'Monoton', label: 'Neon EN', css: "'Monoton'", weight: '400', he: false },
+  { name: 'Vast Shadow', label: 'Western', css: "'Vast Shadow'", weight: '400', he: false },
+  { name: 'Faster One', label: 'Speed', css: "'Faster One'", weight: '400', he: false },
+  { name: 'Fascinate', label: 'Tribal', css: "'Fascinate'", weight: '400', he: false },
+  { name: 'Silkscreen', label: 'Pixel', css: "'Silkscreen'", weight: '400', he: false },
+  { name: 'Press Start 2P', label: 'Retro Game', css: "'Press Start 2P'", weight: '400', he: false },
+  { name: 'Honk', label: 'Honk', css: "'Honk'", weight: '400', he: false },
+  { name: 'Tourney', label: 'Sport', css: "'Tourney'", weight: '900', he: false },
+  { name: 'Foldit', label: 'Origami', css: "'Foldit'", weight: '700', he: false },
 ];
 
 const STYLES = [
@@ -678,12 +730,23 @@ function init() {
 
 function buildFontGrid() {
   const grid = document.getElementById('fontGrid');
+  let addedEnLabel = false;
   FONTS.forEach((font, i) => {
+    // Add section label before first English font
+    if (!font.he && !addedEnLabel) {
+      addedEnLabel = true;
+      const label = document.createElement('div');
+      label.className = 'font-section-label';
+      label.textContent = '— English —';
+      label.style.gridColumn = '1 / -1';
+      grid.appendChild(label);
+    }
     const btn = document.createElement('button');
-    btn.className = 'font-btn' + (i === 0 ? ' active' : '');
+    btn.className = 'font-btn' + (i === 0 ? ' active' : '') + (!font.he ? ' en-only' : '');
     btn.textContent = font.label;
     btn.style.fontFamily = font.css;
     btn.style.fontWeight = font.weight;
+    btn.title = font.name + (font.he ? ' (עב+EN)' : ' (EN only)');
     btn.onclick = () => {
       document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
