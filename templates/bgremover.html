@@ -659,11 +659,87 @@ body {
       updateProgress(10, 'מתחיל עיבוד...');
       const blob = await removeBg(file, config);
 
-      window.resultBlob = blob;
+      // Post-process: combine AI mask with color-based recovery
+      const processedBlob = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const origImg = new Image();
+          origImg.onload = () => {
+            const resImg = new Image();
+            resImg.onload = () => {
+              const w = resImg.width;
+              const h = resImg.height;
+
+              // Get AI result
+              const resCanvas = document.createElement('canvas');
+              resCanvas.width = w; resCanvas.height = h;
+              const resCtx = resCanvas.getContext('2d');
+              resCtx.drawImage(resImg, 0, 0);
+              const resData = resCtx.getImageData(0, 0, w, h);
+
+              // Get original image (scaled to match)
+              const origCanvas = document.createElement('canvas');
+              origCanvas.width = w; origCanvas.height = h;
+              const origCtx = origCanvas.getContext('2d');
+              origCtx.drawImage(origImg, 0, 0, w, h);
+              const origData = origCtx.getImageData(0, 0, w, h);
+
+              const rd = resData.data;
+              const od = origData.data;
+
+              // Sample background color from 20x20 area in each corner
+              let bgR = 0, bgG = 0, bgB = 0, count = 0;
+              const sampleSize = 20;
+              const regions = [
+                [0, 0], [w - sampleSize, 0],
+                [0, h - sampleSize], [w - sampleSize, h - sampleSize]
+              ];
+              for (const [sx, sy] of regions) {
+                for (let y = sy; y < sy + sampleSize && y < h; y++) {
+                  for (let x = sx; x < sx + sampleSize && x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    bgR += od[idx]; bgG += od[idx+1]; bgB += od[idx+2];
+                    count++;
+                  }
+                }
+              }
+              bgR = Math.round(bgR / count);
+              bgG = Math.round(bgG / count);
+              bgB = Math.round(bgB / count);
+
+              // Build output
+              const outCanvas = document.createElement('canvas');
+              outCanvas.width = w; outCanvas.height = h;
+              const outCtx = outCanvas.getContext('2d');
+              const outData = outCtx.createImageData(w, h);
+              const out = outData.data;
+
+              for (let i = 0; i < rd.length; i += 4) {
+                const oR = od[i], oG = od[i+1], oB = od[i+2];
+                const dist = Math.sqrt((oR-bgR)**2 + (oG-bgG)**2 + (oB-bgB)**2);
+
+                if (dist < 40) {
+                  out[i+3] = 0;
+                } else {
+                  out[i] = oR; out[i+1] = oG; out[i+2] = oB; out[i+3] = 255;
+                }
+              }
+
+              outCtx.putImageData(outData, 0, 0);
+              outCanvas.toBlob((b) => resolve(b), 'image/png');
+            };
+            resImg.src = URL.createObjectURL(blob);
+          };
+          origImg.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      window.resultBlob = processedBlob;
       updateProgress(100, 'הושלם! ✨');
 
       const originalUrl = URL.createObjectURL(file);
-      const resultUrl = URL.createObjectURL(blob);
+      const resultUrl = URL.createObjectURL(processedBlob);
 
       document.getElementById('originalImg').src = originalUrl;
       document.getElementById('resultImg').src = resultUrl;
